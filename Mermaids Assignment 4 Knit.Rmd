@@ -1,0 +1,36 @@
+---
+title: "Group Mermaid 206 Assignment 4"
+author: "Callie Steffen, Vanessa Guenther, Renee Albreight"
+date: "11/12/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Part 1.Describe trends in lobster abundance (counts) and fishing pressure (trap buoys) at the five locations from 2012 - 2017. 
+
+```{r, include=FALSE}
+###Loading Necessary Packages
+library(tidyverse)
+library(effsize)
+library(kableExtra)
+library(pwr)
+library(knitr)
+library(plotly)
+library(ggplot2)
+###Reading in the data sets and renaming for convenience
+
+size_abund<- read.csv("lobster_size_abundance.csv")
+traps<-read.csv("lobster_traps.csv")
+
+##Filtering out the transects from data set and only keeping the year not month
+
+lobster_abund<- select(size_abund,YEAR,SITE,COUNT)
+
+
+
+
+```
+
