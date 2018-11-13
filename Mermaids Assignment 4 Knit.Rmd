@@ -29,7 +29,7 @@ traps<-read.csv("lobster_traps.csv")
 
 lobster_abund<- select(size_abund,YEAR,SITE,COUNT)
 
-
+traps_site <-select(traps,YEAR,SITE,TRAPS)
 
 
 ```
