@@ -69,11 +69,13 @@ scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=COUNT))+
 scatter_abundance
 
 scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=TRAPS))+
-  geom_point()+
+  geom_point(aes(color="COUNT"))+
   facet_wrap(~SITE, scale="free") +
+  scale_y_continuous(name="number of lobsters",limits=c(0,25))+
   theme_classic()
 
 scatter_traps
+ggplotly(scatter_traps)
 
   
 
