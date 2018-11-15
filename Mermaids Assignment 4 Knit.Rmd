@@ -77,7 +77,11 @@ scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=TRAPS))+
 scatter_traps
 ggplotly(scatter_traps)
 
+
+
+
   
+
 
 
 ```
