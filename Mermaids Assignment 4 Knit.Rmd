@@ -20,6 +20,8 @@ library(pwr)
 library(knitr)
 library(plotly)
 library(ggplot2)
+library(car)
+library(onewaytests)
 
 ###Reading in the data sets and renaming for convenience
 
@@ -85,4 +87,107 @@ ggplotly(scatter_traps)
 
 
 ```
+####Part 2. Compare mean lobster sizes (carapace length (mm)) across the five sites for lobster observations collected in 2017.
+
+```{r}
+# Create data frame filter for 5 locations and year 2017, select size (remove all -9999 values and turn data into case-format)
+
+compare_ls <- select(size_abund,YEAR,SITE,SIZE,COUNT) %>% 
+  filter(YEAR == 2017, 
+         SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP",
+         SIZE!= "-99999")
+#Remove multiple counts and organize into rows 
+ls_comp <- uncount(compare_ls, weights = COUNT, .remove = TRUE, .id = NULL)
+#Count in decimal numbers ? 
+
+
+counts <- with(ls_comp, table(YEAR,SITE,SIZE))
+View(counts)
+View (ls_comp)
+
+```
+
+
+```{r}
+# Exploratory graphs 
+
+hist_ls <- ggplot(ls_comp, aes(x = SIZE))+
+  geom_histogram(bins = 10) +
+  facet_wrap(~ SITE, scale = "free")
+
+hist_ls
+
+qq_ls <-ggplot(ls_comp, aes(sample = SIZE)) +
+  geom_qq(bins = 10) +
+  facet_wrap(~ SITE, scale = "free")
+
+qq_ls
+
+# Groups approx. normally distributed ? 
+
+box_ls <-  ggplot(ls_comp, aes(x = SITE, y = SIZE)) +
+  geom_boxplot(width = .4) +
+  geom_jitter(width = 0.1, alpha = 0.5, aes(color = SITE))
+
+box_ls
+
+
+```
+
+```{r}
+#Leven's Test 
+variances_ls <- ls_comp %>% 
+  group_by(SITE) %>% 
+  summarize(
+    mean = mean(SIZE),
+    sd = sd(SIZE),
+    variance = var(SIZE)
+  )
+View (variances_ls)
+# assume equal variance 
+
+levene_ls <- leveneTest(SIZE ~ SITE, data = ls_comp)
+levene_ls
+
+#Ho: No difference in variances (Variances are equal)
+# Ha: Variances are NOT equal
+
+# There issignificant differences in variances between SITES ? (or use robust SE) 16 
+
+#ANOVA One-Way 
+#H0: All means are equall 
+#HA: At least two mean are not equal 
+
+ls_anova <- aov(SIZE ~ SITE, data = ls_comp)
+ls_sum <- summary(ls_anova)
+ls_sum
+#At least two means are NOT equal ?
+
+# Which ones ? 
+ls_tukey <- TukeyHSD(ls_anova)
+ls_tukey
+
+# Table comparing ??
+
+stats_ls <- ls_comp %>% 
+  group_by(SITE) %>% 
+  summarize(
+    mean = round(mean(SIZE),2),
+    sd = round(sd(SIZE),2))
+
+
+figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
+  geom_col(colour = NA, fill = "gray50", width = 0.5) +
+  geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width = 0.1) +
+  scale_y_continuous()
+  
+figure_ls
+  
+  
+
+ 
+
+
+```
+
 
