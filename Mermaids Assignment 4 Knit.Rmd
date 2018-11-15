@@ -81,4 +81,24 @@ ggplotly(scatter_traps)
 
 
 ```
+####Part 2. Compare mean lobster sizes (carapace length (mm)) across the five sites for lobster observations collected in 2017.
+
+```{r}
+# Create data frame filter for 5 locations and year 2017, select size (remove all -9999 values and turn data into case-format)
+
+compare_ls <- select(size_abund,YEAR,SITE,SIZE,COUNT) %>% 
+  filter(YEAR == 2017, 
+         SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP",
+         SIZE!= "-99999")
+#Remove multiple counts and organize into rows 
+ls_comp <- uncount(compare_ls, weights = COUNT, .remove = TRUE, .id = NULL)
+#Count in decimal numbers ? 
+
+View (ls_comp)
+
+
+```
+
+
+
 
