@@ -1,6 +1,6 @@
 ---
 title: "Group Mermaid 206 Assignment 4"
-author: "Callie Steffen, Vanessa Guenther, Renee Albreight"
+author: "Callie Steffen, Vanessa Guenther, Renee Albrecht"
 date: "11/12/2018"
 output: html_document
 ---
@@ -179,11 +179,9 @@ figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
   
 figure_ls
   
-  
-
- 
 
 
 ```
 
+### Part 3. Compare changes in lobster size at MPA and non-MPA sites (comparing only 2012 and 2017 sizes)
 
