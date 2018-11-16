@@ -2,7 +2,9 @@
 title: "Group Mermaid 206 Assignment 4"
 author: "Callie Steffen, Vanessa Guenther, Renee Albrecht"
 date: "11/12/2018"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
