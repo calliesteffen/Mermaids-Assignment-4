@@ -22,6 +22,8 @@ library(plotly)
 library(ggplot2)
 library(car)
 library(onewaytests)
+library(readr)
+library(dplyr)
 
 ###Reading in the data sets and renaming for convenience
 
@@ -32,11 +34,11 @@ traps<-read.csv("lobster_traps.csv")
 ##Basic data wrangling
 
 lobster_abund<- select(size_abund,YEAR,SITE,COUNT) %>% 
-  count(YEAR,SITE)
+  count(YEAR,SITE)  ##Making total counts of lobsters at each site for each year
 
 traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
   filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") %>% 
-  count(YEAR,SITE)
+  count(YEAR,SITE) ##Making total counts of traps at each site for each year
 
 
 ###Exploratory Graphs of the Data Frames
@@ -54,17 +56,14 @@ lobster_qq<-ggplot(lobster_abund, aes(sample =n))+
   geom_qq()
 lobster_qq
 
-##Histogram for Traps
 
-traps_histogram<-ggplot(traps_site, aes(x=TRAPS))+
-  geom_histogram()
-
-traps_histogram
 
 ###QQ Plot for Traps
-traps_qq<-ggplot(traps_site, aes(sample=TRAPS)) +
+traps_qq<-ggplot(traps_site, aes(sample=n)) +
   geom_qq()
 traps_qq
+
+##Scatter plots for both lobster and trap numbers using facet wrap for each site
 
 scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=n))+
   geom_point()+
@@ -77,12 +76,39 @@ scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=n))+
   geom_point(aes(color="COUNT"))+
   facet_wrap(~SITE, scale="free") +
   scale_y_continuous(name="number of lobsters",limits=c(25,270))+
-  theme_classic()
+  theme_classic() +
+  geom_line()
 
 scatter_traps
 ggplotly(scatter_traps)
 
+##Combining the data sets so SIte and year are available for both lobster and traps
+combined<- left_join(lobster_abund, traps_site, by= c("SITE", "YEAR"))
+combined
 
+
+### Making Line Graps to Compare and Explore if Traps and Lobsters are Associated
+
+line_traps<-ggplot(traps_site,aes(x=YEAR,y=n))+
+  geom_point()+
+  geom_line(aes(col=SITE)) +
+  theme_classic() +
+  labs(y="TRAP COUNT") +
+  scale_y_continuous(expand=c(0,0), limits = c(0,280), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240,260,280))
+
+
+line_traps
+
+line_lobster<-ggplot(lobster_abund, aes(x=YEAR,y=n))+
+  geom_point()+
+  geom_line(aes(col=SITE))+
+  theme_classic()+
+  labs(y="LOBSTER COUNT")+
+  scale_y_continuous(expand = c(0,0), limits=c(0,360), breaks=c(0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360))
+
+line_lobster
+                     
+                   
 
 
   
