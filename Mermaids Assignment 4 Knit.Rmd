@@ -1,6 +1,6 @@
 ---
 title: "Group Mermaid 206 Assignment 4"
-author: "Callie Steffen, Vanessa Guenther, Renee Albreight"
+author: "Callie Steffen, Vanessa Guenther, Renee Albrecht"
 date: "11/12/2018"
 output: html_document
 ---
@@ -22,8 +22,13 @@ library(plotly)
 library(ggplot2)
 library(car)
 library(onewaytests)
+<<<<<<< HEAD
 library(readr)
 library(dplyr)
+=======
+library(vcdExtra)
+library(kableExtra)
+>>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
 
 ###Reading in the data sets and renaming for convenience
 
@@ -33,6 +38,7 @@ traps<-read.csv("lobster_traps.csv")
 ##Filtering out the transects from data set and only keeping the year not month(keeping year, site, count)
 ##Basic data wrangling
 
+<<<<<<< HEAD
 lobster_abund<- select(size_abund,YEAR,SITE,COUNT) %>% 
   count(YEAR,SITE)  ##Making total counts of lobsters at each site for each year
 
@@ -40,19 +46,25 @@ traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
   filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") %>% 
   count(YEAR,SITE) ##Making total counts of traps at each site for each year
 
+=======
+lobster_abund<- select(size_abund,YEAR,SITE,COUNT)
+
+traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
+  filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") ###Filtering for the 5 sites we are looking at
+>>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
 
 ###Exploratory Graphs of the Data Frames
 
 #Histogram for Lobster Abundance
 
-abund_histogram<-ggplot(lobster_abund, aes(x=n)) +
+abund_histogram<-ggplot(lobster_abund, aes(x=COUNT)) +
   geom_histogram() 
-
 
 abund_histogram
 
+
 ###QQ plot for Lobster Abundanance
-lobster_qq<-ggplot(lobster_abund, aes(sample =n))+
+lobster_qq<-ggplot(lobster_abund, aes(sample =COUNT))+
   geom_qq()
 lobster_qq
 
@@ -63,25 +75,35 @@ traps_qq<-ggplot(traps_site, aes(sample=n)) +
   geom_qq()
 traps_qq
 
+<<<<<<< HEAD
 ##Scatter plots for both lobster and trap numbers using facet wrap for each site
 
 scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=n))+
+=======
+scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=COUNT))+
+>>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
   geom_point()+
   facet_wrap(~SITE, scale = "free") +
   theme_classic()
 
 scatter_abundance
 
-scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=n))+
+scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=TRAPS))+
   geom_point(aes(color="COUNT"))+
   facet_wrap(~SITE, scale="free") +
+<<<<<<< HEAD
   scale_y_continuous(name="number of lobsters",limits=c(25,270))+
   theme_classic() +
   geom_line()
+=======
+  scale_y_continuous(name="number of lobsters",limits=c(0,25))+
+  theme_classic()
+>>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
 
 scatter_traps
 ggplotly(scatter_traps)
 
+<<<<<<< HEAD
 ##Combining the data sets so SIte and year are available for both lobster and traps
 combined<- left_join(lobster_abund, traps_site, by= c("SITE", "YEAR"))
 combined
@@ -107,12 +129,23 @@ line_lobster<-ggplot(lobster_abund, aes(x=YEAR,y=n))+
   scale_y_continuous(expand = c(0,0), limits=c(0,360), breaks=c(0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360))
 
 line_lobster
+
+
+###Making a Table for totals of abundance and traps at each site
+
+table_lobster <-kable(combined, col.names = c("YEAR","SITE","Lobster","Traps")) %>%  
+        kable_styling(bootstrap_options = c("border","condensed","striped")) 
+
+table_lobster
+
+        
                      
                    
 
 
+=======
+>>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
   
-
 
 
 ```
@@ -152,7 +185,7 @@ qq_ls <-ggplot(ls_comp, aes(sample = SIZE)) +
 
 qq_ls
 
-# Groups approx. normally distributed ? 
+# Groups approx. normally distributed  
 
 box_ls <-  ggplot(ls_comp, aes(x = SITE, y = SIZE)) +
   geom_boxplot(width = .4) +
@@ -211,8 +244,6 @@ figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
   scale_y_continuous()
   
 figure_ls
-
-
   
   
 
@@ -220,5 +251,37 @@ figure_ls
 
 
 ```
+
+### Part 3: Comparing changes in lobster size at MPA and non-MPA sites (comparing only 2012 and 2017 sizes)
+At Isla Vista and Naples Reef, the two protected MPA sites (with zero fishing pressure), how do lobster sizes
+in 2012 and 2017 compare? At the non-MPA sites?
+
+
+```{r}
+#create dataframe to compare lobster size in 2012 and 2017 at MPA and non-MPA sites 
+
+MPA_df <- size_abund %>%
+  filter(YEAR == "2012" | YEAR == "2017",  SIZE != "-99999") %>%
+  mutate(
+    MPA_STATUS = case_when( 
+      SITE == "IVEE" ~ "MPA",
+      SITE == "NAPL" ~ "MPA",
+      SITE == "AQUE" ~ "NON-MPA",
+      SITE == "CARP" ~ "NON-MPA",
+      SITE == "MOHK" ~ "NON-MPA")) %>%
+  select(YEAR, SITE, SIZE, COUNT, MPA_STATUS)
+
+#arrange data so that each lobster has its own row 
+MPAdf <- as.data.frame(expand.dft(MPA_df, freq = "COUNT"))
+     
+
+View(MPAdf)
+
+#create data summary frame of lobster size mean, SD, and sample size 
+
+
+
+```
+
 
 
