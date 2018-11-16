@@ -1,6 +1,6 @@
 ---
 title: "Group Mermaid 206 Assignment 4"
-author: "Callie Steffen, Vanessa Guenther, Renee Albreight"
+author: "Callie Steffen, Vanessa Guenther, Renee Albrecht"
 date: "11/12/2018"
 output: html_document
 ---
@@ -186,5 +186,37 @@ figure_ls
 
 
 ```
+
+### Part 3: Comparing changes in lobster size at MPA and non-MPA sites (comparing only 2012 and 2017 sizes)
+At Isla Vista and Naples Reef, the two protected MPA sites (with zero fishing pressure), how do lobster sizes
+in 2012 and 2017 compare? At the non-MPA sites?
+
+
+```{r}
+#create dataframe to compare lobster size in 2012 and 2017 at MPA and non-MPA sites 
+
+MPA_df <- size_abund %>%
+  filter(YEAR == "2012" | YEAR == "2017",  SIZE != "-99999") %>%
+  mutate(
+    MPA_STATUS = case_when( 
+      SITE == "IVEE" ~ "MPA",
+      SITE == "NAPL" ~ "MPA",
+      SITE == "AQUE" ~ "NON-MPA",
+      SITE == "CARP" ~ "NON-MPA",
+      SITE == "MOHK" ~ "NON-MPA")) %>%
+  select(YEAR, SITE, SIZE, COUNT, MPA_STATUS)
+
+#arrange data so that each lobster has its own row 
+MPAdf <- as.data.frame(expand.dft(MPA_df, freq = "COUNT"))
+     
+
+View(MPAdf)
+
+#create data summary frame of lobster size mean, SD, and sample size 
+
+
+
+```
+
 
 
