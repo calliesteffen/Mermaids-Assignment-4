@@ -209,8 +209,7 @@ MPA_df <- size_abund %>%
 #arrange data so that each lobster has its own row 
 MPAdf <- as.data.frame(expand.dft(MPA_df, freq = "COUNT"))
      
-
-View(MPAdf)
+#View(MPAdf)
 
 #create data summary frame of lobster size median, max, mean, SD, and sample size 
 
@@ -223,7 +222,7 @@ group_by(YEAR) %>% #group data together by same month
     stdev = round(sd(SIZE),2), #find SD, round to 2 digits
     length(SIZE)) #find sample size 
 
-View(MPA_table)
+#View(MPA_table)
 
 ```
 
@@ -253,13 +252,99 @@ MPAqq
 
 ```
 
+## Part 3 questions of interest: 
+## a. Is there a significant difference between lobster size at MPA sites in 2012 and 2017? 
+## b. Is there a significant difference between lobster size at non-MPA sites in 2012 and 2017? 
+## c. Is there a significant difference between lobster size at MPA vs. Non-MPA sites in 2017? 
 
-## Is there a significant difference between lobster size at MPA sites in 2012 and 2017? 
+```{r}
 
-## Is there a significant difference between lobster size at non-MPA sites in 2012 and 2017? 
+#create data frames to perform statistical test to answer the questions above 
 
-## Is there a significant difference between lobster size at MPA vs. Non-MPA sites in 2017? 
+mpa_sites <- MPAdf %>%
+  filter(MPA_STATUS == "MPA")
+
+#View(mpa_sites)
+
+nonmpa_sites <- MPAdf %>%
+  filter(MPA_STATUS == "NON-MPA")
+
+#View(nonmpa_sites)
+
+post_sites <- MPAdf %>%
+  filter(YEAR == "2017")
+
+#View(post_sites)
+
+```
+
+```{r}
+####
+#3a. Comparing lobster size at the two MPA sites (IVEE and NAPL) in 2012 and 2017
+####
+
+#F Test for equal variance 
+#H0: Ratio of variances is = 1 
+#HA: Ratio of variances is NOT = 1
+
+mpa_ftest <- mpa_sites %>%
+  var.test(SIZE ~ YEAR, data = .)
+
+mpa_ftest
+# Test determined variances are NOT equal 
+
+#Two sample two sided T-Test
+#H0: The difference between the means = 0
+#HA: The difference between the means is NOT = 0
+
+mpa_ttest <- mpa_sites %>%
+  t.test(SIZE ~ YEAR, data =., var.equal = FALSE)
+
+mpa_ttest
+
+######
+#RESULT: At the MPA sites, there is a significant difference between lobster size in 2012 and 2017
+######
 
 
+```
 
+```{r}
+###
+#3b. Comparing lobster size at the non-MPA sites (CARP, MOHK, and AQUE) in 2012 and 2017
+###
+
+#F Test for equal variance 
+#H0: Ratio of variances is = 1 
+#HA: Ratio of variances is NOT = 1
+
+nonmpa_ftest <- nonmpa_sites %>%
+  var.test(SIZE ~ YEAR, data = .)
+
+nonmpa_ftest
+# Test determined variances are NOT equal 
+
+#Two sample two sided T-Test
+#H0: The difference between the means = 0
+#HA: The difference between the means is NOT = 0
+
+nonmpa_ttest <- nonmpa_sites %>%
+  t.test(SIZE ~ YEAR, data =., var.equal = FALSE)
+
+nonmpa_ttest
+
+######
+#RESULT: At the non-MPA sites, there is a significant difference between lobster size in 2012 and 2017
+######
+
+
+```
+
+```{r}
+###
+#3c. Comparing lobster size at MPA vs. Non-MPA sites in 2017
+###
+
+
+```
 
