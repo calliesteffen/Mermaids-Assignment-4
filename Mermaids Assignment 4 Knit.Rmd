@@ -139,7 +139,9 @@ table_lobster <-kable(combined, col.names = c("YEAR","SITE","Lobster","Traps")) 
 table_lobster
 
         
-                     
+       
+
+              
                    
 
 
