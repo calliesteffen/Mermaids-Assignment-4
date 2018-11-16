@@ -212,11 +212,54 @@ MPAdf <- as.data.frame(expand.dft(MPA_df, freq = "COUNT"))
 
 View(MPAdf)
 
-#create data summary frame of lobster size mean, SD, and sample size 
+#create data summary frame of lobster size median, max, mean, SD, and sample size 
+
+MPA_table <- as.data.frame(expand.dft(size_abund, freq = "COUNT")) %>%
+group_by(YEAR) %>% #group data together by same month
+  summarize(
+    median = round(median(SIZE),2), #find median, round to 2 digits
+    max = max(SIZE), #identify maximum 
+    mean = round(mean(SIZE),2), #find mean, round to 2 digits 
+    stdev = round(sd(SIZE),2), #find SD, round to 2 digits
+    length(SIZE)) #find sample size 
+
+View(MPA_table)
+
+```
+
+
+```{r}
+
+
+#Create exloratory histograms and qq plots
+
+#histogram to compare 2012 and 2017 lobster sizes 
+MPAhist <- ggplot(MPAdf, aes(x = SIZE)) +
+  geom_histogram(aes(bins=15, fill = SITE)) +
+                   facet_wrap(~YEAR ~MPA_STATUS, scale = "free") +
+                   theme_classic()
+MPAhist
+
+#qq plot to compare 2012 and 2017 lobster sizes 
+MPAqq <- ggplot(MPAdf, aes(sample = SIZE)) +
+  geom_qq(aes(color = SITE)) + 
+  facet_wrap(~YEAR ~MPA_STATUS, scale = "free") + 
+  theme_classic()
+
+MPAqq
+
 
 
 
 ```
+
+
+## Is there a significant difference between lobster size at MPA sites in 2012 and 2017? 
+
+## Is there a significant difference between lobster size at non-MPA sites in 2012 and 2017? 
+
+## Is there a significant difference between lobster size at MPA vs. Non-MPA sites in 2017? 
+
 
 
 
