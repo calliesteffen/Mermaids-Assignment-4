@@ -23,6 +23,9 @@ library(ggplot2)
 library(car)
 library(onewaytests)
 library(vcdExtra)
+library(xtable)
+install.packages("ggsignif")
+library(ggsignif)
 
 ###Reading in the data sets and renaming for convenience
 
@@ -140,7 +143,8 @@ variances_ls <- ls_comp %>%
     sd = sd(SIZE),
     variance = var(SIZE)
   )
-View (variances_ls)
+View(variances_ls)
+
 # assume equal variance 
 
 levene_ls <- leveneTest(SIZE ~ SITE, data = ls_comp)
@@ -149,7 +153,7 @@ levene_ls
 #Ho: No difference in variances (Variances are equal)
 # Ha: Variances are NOT equal
 
-# There issignificant differences in variances between SITES ? (or use robust SE) 16 
+# There issignificant differences in variances between SITES ? (or use robust SE) 16  Can we still use anova if L-test not affected ? or Welsh ?  
 
 #ANOVA One-Way 
 #H0: All means are equall 
@@ -164,6 +168,7 @@ ls_sum
 ls_tukey <- TukeyHSD(ls_anova)
 ls_tukey
 
+
 # Table comparing ??
 
 stats_ls <- ls_comp %>% 
@@ -175,15 +180,15 @@ stats_ls <- ls_comp %>%
 
 figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
   geom_col(colour = NA, fill = "gray50", width = 0.5) +
-  geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width = 0.1) +
-  scale_y_continuous()
-  
+  geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width = 0.1)+
+   scale_y_continuous(expand = c(0,0), limits = c(0,95))+
+    labs(y=expression(Mean~Lobster~Size~~(m)))+
+  scale_x_discrete() +
+  xlab("\nResearch Sites")+
+   geom_signif() #  GEOM SIGNIF ?????
+
+
 figure_ls
-  
-  
-
- 
-
 
 ```
 
