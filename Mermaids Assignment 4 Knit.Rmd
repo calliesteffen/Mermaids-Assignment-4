@@ -24,19 +24,13 @@ library(plotly)
 library(ggplot2)
 library(car)
 library(onewaytests)
-<<<<<<< HEAD
 library(readr)
 library(dplyr)
-=======
 library(vcdExtra)
-<<<<<<< HEAD
 library(kableExtra)
->>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
-=======
 library(xtable)
-install.packages("ggsignif")
 library(ggsignif)
->>>>>>> 62734899239758972fbc54f1ecb8e1d2dfbbc9f9
+
 
 ###Reading in the data sets and renaming for convenience
 
@@ -46,20 +40,15 @@ traps<-read.csv("lobster_traps.csv")
 ##Filtering out the transects from data set and only keeping the year not month(keeping year, site, count)
 ##Basic data wrangling
 
-<<<<<<< HEAD
+
 lobster_abund<- select(size_abund,YEAR,SITE,COUNT) %>% 
-  count(YEAR,SITE)  ##Making total counts of lobsters at each site for each year
+  group_by(SITE,YEAR)##Making total counts of lobsters at each site for each year
+lobster_abund
 
 traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
   filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") %>% 
-  count(YEAR,SITE) ##Making total counts of traps at each site for each year
-
-=======
-lobster_abund<- select(size_abund,YEAR,SITE,COUNT)
-
-traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
-  filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") ###Filtering for the 5 sites we are looking at
->>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
+  group_by(SITE,YEAR)
+   ##Making total counts of traps at each site for each year
 
 ###Exploratory Graphs of the Data Frames
 
@@ -79,17 +68,15 @@ lobster_qq
 
 
 ###QQ Plot for Traps
-traps_qq<-ggplot(traps_site, aes(sample=n)) +
+traps_qq<-ggplot(traps_site, aes(sample=TRAPS)) +
   geom_qq()
 traps_qq
 
-<<<<<<< HEAD
+
 ##Scatter plots for both lobster and trap numbers using facet wrap for each site
 
-scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=n))+
-=======
 scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=COUNT))+
->>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
+
   geom_point()+
   facet_wrap(~SITE, scale = "free") +
   theme_classic()
@@ -99,63 +86,57 @@ scatter_abundance
 scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=TRAPS))+
   geom_point(aes(color="COUNT"))+
   facet_wrap(~SITE, scale="free") +
-<<<<<<< HEAD
-  scale_y_continuous(name="number of lobsters",limits=c(25,270))+
+
+  scale_y_continuous(name="number of lobsters")+
   theme_classic() +
   geom_line()
-=======
-  scale_y_continuous(name="number of lobsters",limits=c(0,25))+
-  theme_classic()
->>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
 
-scatter_traps
-ggplotly(scatter_traps)
+  scatter_traps
 
-<<<<<<< HEAD
+
 ##Combining the data sets so SIte and year are available for both lobster and traps
 combined<- left_join(lobster_abund, traps_site, by= c("SITE", "YEAR"))
 combined
 
 
-### Making Line Graps to Compare and Explore if Traps and Lobsters are Associated
+### Making a summary table and two Line Graps to Compare and Explore if Traps and Lobsters are Associated
 
-line_traps<-ggplot(traps_site,aes(x=YEAR,y=n))+
+summarytable_traps<- summarize(traps_site, sum=sum(TRAPS))
+
+summarytable_traps
+
+summarytable_lobster<-summarize(lobster_abund,sum=sum(COUNT))
+
+summarytable_lobster
+
+###LINE GRAPHS FOR BOTH LOBSTER AND TRAPS AT EACH SITE FOR EACH YEAR
+
+line_traps<-ggplot(summarytable_traps,aes(x=YEAR,y=sum))+
   geom_point()+
   geom_line(aes(col=SITE)) +
   theme_classic() +
-  labs(y="TRAP COUNT") +
-  scale_y_continuous(expand=c(0,0), limits = c(0,280), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240,260,280))
-
+  labs(y="TRAP COUNT", title="Total Amount of Lobster Traps Per Site 2012-2017") +
+  scale_y_continuous(expand=c(0,0), limits = c(0,1200), breaks = c(0,100,200,300,400,500,600,700,800,900,1000,1100,1200))
 
 line_traps
 
-line_lobster<-ggplot(lobster_abund, aes(x=YEAR,y=n))+
+
+line_lobster<-ggplot(summarytable_lobster, aes(x=YEAR,y= sum))+
   geom_point()+
   geom_line(aes(col=SITE))+
   theme_classic()+
-  labs(y="LOBSTER COUNT")+
-  scale_y_continuous(expand = c(0,0), limits=c(0,360), breaks=c(0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360))
+  labs(y="LOBSTER COUNT",title="Total Abundance of Lobsters Per Site 2012-2017")+
+  scale_y_continuous(expand = c(0,0), limits=c(0,750), breaks=c(0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750))
+
 
 line_lobster
 
 
-###Making a Table for totals of abundance and traps at each site
-
-table_lobster <-kable(combined, col.names = c("YEAR","SITE","Lobster","Traps")) %>%  
-        kable_styling(bootstrap_options = c("border","condensed","striped")) 
-
-table_lobster
-
         
-       
-
               
-                   
+             
 
 
-=======
->>>>>>> 01664a10a975b014b97ddb5d96ac4e2b836da946
-  
 
 
 ```
@@ -344,5 +325,18 @@ MPAqq
 ## Is there a significant difference between lobster size at MPA vs. Non-MPA sites in 2017? 
 
 
+###PART 4 Proportion Table and Chi-Test
+
+```{r}
+
+chi_prop<-ls_comp %>% 
+
+  
+  
+prop and chi test
+
+
+
+```
 
 
