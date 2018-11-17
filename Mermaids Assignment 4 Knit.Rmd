@@ -271,13 +271,13 @@ MPAqq
 
 ```
 
-## Part 3 questions of interest: 
-## a. Is there a significant difference between lobster size at each of the sites in 2012 and 2017? 
+## Part 3 question of interest: 
+## Is there a significant difference between lobster size at each of the sites in 2012 and 2017? 
 
 
 ```{r}
 
-#create data frames to perform statistical tests to answer the questions above 
+#create data frames to perform statistical tests to answer the question above 
 
 #AQUE dataframe
 AQUEdf <- MPAdf %>%
@@ -431,7 +431,7 @@ NAPL_ttest <- NAPLdf %>%
 
 ```{r}
 ####
-#3a. Comparing lobster size at ALL MPA sites (IVEE and NAPL) in 2012 and 2017
+#Comparing lobster size at ALL MPA sites (IVEE and NAPL) in 2012 and 2017
 ####
 
 #F Test for equal variance 
@@ -459,7 +459,7 @@ mpa_ttest
 
 ```{r}
 ###
-#3b. Comparing lobster size at ALL non-MPA sites (CARP, MOHK, and AQUE) in 2012 and 2017
+#Comparing lobster size at ALL non-MPA sites (CARP, MOHK, and AQUE) in 2012 and 2017
 ###
 
 #F Test for equal variance 
@@ -487,10 +487,35 @@ nonmpa_ttest
 
 ```{r}
 ###
-#3c. Comparing lobster size at MPA vs. Non-MPA sites in 2017
+#Comparing lobster size at MPA vs. Non-MPA sites in 2017
 ###
 
 
 ```
 
+```{r}
+
+#Create finalized data table 
+
+sizesum <- MPAdf %>%
+  group_by(SITE, YEAR) %>%
+  summarize(
+    mean = round(mean(SIZE), 1),
+    stdev = round(mean(SIZE), 1),
+    length(SIZE))
+  
+sizesum
+
+
+
+```
+
+```{r}
+
+kable(sizesum, col.names = c("Site", "Year", "Mean (mm)", "SD (mm)", "sample size"), caption = "**Table 1**. California spiny lobster (*Panulirus interruptus*) carapace length (mm) at five Santa Barbara Channel reefs in 2012 and 2017. Source: Santa Barbara Coastal Long Term Ecological Research") %>%
+  kable_styling(bootstrap_options = c("striped"), full_width = F) %>%
+  collapse_rows(columns = 1)
+
+
+```
 
