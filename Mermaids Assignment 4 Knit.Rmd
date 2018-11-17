@@ -26,7 +26,6 @@ library(car)
 library(onewaytests)
 library(vcdExtra)
 library(xtable)
-install.packages("ggsignif")
 library(ggsignif)
 
 ###Reading in the data sets and renaming for convenience
@@ -102,8 +101,6 @@ compare_ls <- select(size_abund,YEAR,SITE,SIZE,COUNT) %>%
 ls_comp <- uncount(compare_ls, weights = COUNT, .remove = TRUE, .id = NULL)
 #Count in decimal numbers ? 
 
-
-counts <- with(ls_comp, table(YEAR,SITE,SIZE))
 View(counts)
 View (ls_comp)
 
@@ -181,7 +178,7 @@ stats_ls <- ls_comp %>%
 
 
 figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
-  geom_col(colour = NA, fill = "gray50", width = 0.5) +
+  geom_col(colour = NA, fill = "#FF6666", width = 0.5) +
   geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width = 0.1)+
    scale_y_continuous(expand = c(0,0), limits = c(0,120))+
     labs(y=expression(Mean~Lobster~Size~~(m)))+
@@ -197,7 +194,17 @@ figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
  
 figure_ls
 
+#numer of samples for each site
+ls_comp %>% count(SITE)
+
 ```
+
+**Figure XX. Lobsrer Size Destribution at SBC LTER SITES.** Mean lobster size(mm) for locations AQUE (n=67), CARP (n=705), IVEE (n=606), MOHK (n=178), and NAPL (n=122) Santa Barbara County. Error bars indicate +/- 1 standard deviation. Brackets indicate *p*-values for significantly different means as determined by one-way ANOVA with Tukey's HSD (F(3,42) = ???, *p* < 0.001, with $\alpha$ = 0.05 throughout). Data source: Santa Barbara Coastal (bc.lternet.edu/cgi-bin/showDataset.cgi?docid=knb-lter-sbc.77)
+
+
+
+
+
 
 ### Part 3: Comparing changes in lobster size at MPA and non-MPA sites (comparing only 2012 and 2017 sizes)
 At Isla Vista and Naples Reef, the two protected MPA sites (with zero fishing pressure), how do lobster sizes
