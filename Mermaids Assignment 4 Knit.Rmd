@@ -5,6 +5,7 @@ date: "11/12/2018"
 output:
   word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -101,7 +102,7 @@ compare_ls <- select(size_abund,YEAR,SITE,SIZE,COUNT) %>%
 ls_comp <- uncount(compare_ls, weights = COUNT, .remove = TRUE, .id = NULL)
 #Count in decimal numbers ? 
 
-View(counts)
+#View(counts)
 View (ls_comp)
 
 ```
@@ -497,8 +498,17 @@ nonmpa_ttest
 
 #Create finalized data table 
 
-sizesum <- MPAdf %>%
-  group_by(SITE, YEAR) %>%
+sum_df <- MPAdf %>%
+  mutate(
+    SITE_FULL = case_when( 
+      SITE == "IVEE" ~ "Isla Vista (IVEE)",
+      SITE == "NAPL" ~ "Naples Reef (NAPL)",
+      SITE == "AQUE" ~ "Arroyo Quemado (AQUE)",
+      SITE == "CARP" ~ "Carpinteria (CARP)",
+      SITE == "MOHK" ~ "Mohawk Reef (MOHK)"))
+
+sizesum <- sum_df %>%
+  group_by(SITE_FULL, YEAR) %>%
   summarize(
     mean = round(mean(SIZE), 1),
     stdev = round(mean(SIZE), 1),
