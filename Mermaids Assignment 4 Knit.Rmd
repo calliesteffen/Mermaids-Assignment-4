@@ -5,6 +5,7 @@ date: "11/12/2018"
 output:
   word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -24,13 +25,9 @@ library(plotly)
 library(ggplot2)
 library(car)
 library(onewaytests)
-library(readr)
-library(dplyr)
 library(vcdExtra)
-library(kableExtra)
 library(xtable)
 library(ggsignif)
-
 
 ###Reading in the data sets and renaming for convenience
 
@@ -40,15 +37,10 @@ traps<-read.csv("lobster_traps.csv")
 ##Filtering out the transects from data set and only keeping the year not month(keeping year, site, count)
 ##Basic data wrangling
 
-
-lobster_abund<- select(size_abund,YEAR,SITE,COUNT) %>% 
-  group_by(SITE,YEAR)##Making total counts of lobsters at each site for each year
-lobster_abund
+lobster_abund<- select(size_abund,YEAR,SITE,COUNT)
 
 traps_site <-select(traps,YEAR,SITE,TRAPS) %>%    ##(keeping year, site, traps)
-  filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") %>% 
-  group_by(SITE,YEAR)
-   ##Making total counts of traps at each site for each year
+  filter(SITE=="AQUE"|SITE=="NAPL"|SITE=="MOHK"|SITE=="IVEE"|SITE=="CARP") ###Filtering for the 5 sites we are looking at
 
 ###Exploratory Graphs of the Data Frames
 
@@ -65,18 +57,19 @@ lobster_qq<-ggplot(lobster_abund, aes(sample =COUNT))+
   geom_qq()
 lobster_qq
 
+##Histogram for Traps
 
+traps_histogram<-ggplot(traps_site, aes(x=TRAPS))+
+  geom_histogram()
+
+traps_histogram
 
 ###QQ Plot for Traps
 traps_qq<-ggplot(traps_site, aes(sample=TRAPS)) +
   geom_qq()
 traps_qq
 
-
-##Scatter plots for both lobster and trap numbers using facet wrap for each site
-
 scatter_abundance<-ggplot(lobster_abund, aes(x=YEAR, y=COUNT))+
-
   geom_point()+
   facet_wrap(~SITE, scale = "free") +
   theme_classic()
@@ -86,57 +79,13 @@ scatter_abundance
 scatter_traps<-ggplot(traps_site, aes(x=YEAR, y=TRAPS))+
   geom_point(aes(color="COUNT"))+
   facet_wrap(~SITE, scale="free") +
+  scale_y_continuous(name="number of lobsters",limits=c(0,25))+
+  theme_classic()
 
-  scale_y_continuous(name="number of lobsters")+
-  theme_classic() +
-  geom_line()
+scatter_traps
+ggplotly(scatter_traps)
 
-  scatter_traps
-
-
-##Combining the data sets so SIte and year are available for both lobster and traps
-combined<- left_join(lobster_abund, traps_site, by= c("SITE", "YEAR"))
-combined
-
-
-### Making a summary table and two Line Graps to Compare and Explore if Traps and Lobsters are Associated
-
-summarytable_traps<- summarize(traps_site, sum=sum(TRAPS))
-
-summarytable_traps
-
-summarytable_lobster<-summarize(lobster_abund,sum=sum(COUNT))
-
-summarytable_lobster
-
-###LINE GRAPHS FOR BOTH LOBSTER AND TRAPS AT EACH SITE FOR EACH YEAR
-
-line_traps<-ggplot(summarytable_traps,aes(x=YEAR,y=sum))+
-  geom_point()+
-  geom_line(aes(col=SITE)) +
-  theme_classic() +
-  labs(y="TRAP COUNT", title="Total Amount of Lobster Traps Per Site 2012-2017") +
-  scale_y_continuous(expand=c(0,0), limits = c(0,1200), breaks = c(0,100,200,300,400,500,600,700,800,900,1000,1100,1200))
-
-line_traps
-
-
-line_lobster<-ggplot(summarytable_lobster, aes(x=YEAR,y= sum))+
-  geom_point()+
-  geom_line(aes(col=SITE))+
-  theme_classic()+
-  labs(y="LOBSTER COUNT",title="Total Abundance of Lobsters Per Site 2012-2017")+
-  scale_y_continuous(expand = c(0,0), limits=c(0,750), breaks=c(0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750))
-
-
-line_lobster
-
-
-        
-              
-             
-
-
+  
 
 
 ```
@@ -153,9 +102,7 @@ compare_ls <- select(size_abund,YEAR,SITE,SIZE,COUNT) %>%
 ls_comp <- uncount(compare_ls, weights = COUNT, .remove = TRUE, .id = NULL)
 #Count in decimal numbers ? 
 
-
-counts <- with(ls_comp, table(YEAR,SITE,SIZE))
-View(counts)
+#View(counts)
 View (ls_comp)
 
 ```
@@ -232,7 +179,7 @@ stats_ls <- ls_comp %>%
 
 
 figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
-  geom_col(colour = NA, fill = "gray50", width = 0.5) +
+  geom_col(colour = NA, fill = "#FF6666", width = 0.5) +
   geom_errorbar(aes(ymax = mean + sd, ymin = mean - sd), width = 0.1)+
    scale_y_continuous(expand = c(0,0), limits = c(0,120))+
     labs(y=expression(Mean~Lobster~Size~~(m)))+
@@ -248,7 +195,17 @@ figure_ls <- ggplot(stats_ls, aes(x = SITE, y = mean)) +
  
 figure_ls
 
+#numer of samples for each site
+ls_comp %>% count(SITE)
+
 ```
+
+**Figure XX. Lobsrer Size Destribution at SBC LTER SITES.** Mean lobster size(mm) for locations AQUE (n=67), CARP (n=705), IVEE (n=606), MOHK (n=178), and NAPL (n=122) Santa Barbara County. Error bars indicate +/- 1 standard deviation. Brackets indicate *p*-values for significantly different means as determined by one-way ANOVA with Tukey's HSD (F(3,42) = ???, *p* < 0.001, with $\alpha$ = 0.05 throughout). Data source: Santa Barbara Coastal (bc.lternet.edu/cgi-bin/showDataset.cgi?docid=knb-lter-sbc.77)
+
+
+
+
+
 
 ### Part 3: Comparing changes in lobster size at MPA and non-MPA sites (comparing only 2012 and 2017 sizes)
 At Isla Vista and Naples Reef, the two protected MPA sites (with zero fishing pressure), how do lobster sizes
@@ -272,8 +229,7 @@ MPA_df <- size_abund %>%
 #arrange data so that each lobster has its own row 
 MPAdf <- as.data.frame(expand.dft(MPA_df, freq = "COUNT"))
      
-
-View(MPAdf)
+#View(MPAdf)
 
 #create data summary frame of lobster size median, max, mean, SD, and sample size 
 
@@ -286,8 +242,7 @@ group_by(YEAR) %>% #group data together by same month
     stdev = round(sd(SIZE),2), #find SD, round to 2 digits
     length(SIZE)) #find sample size 
 
-View(MPA_table)
-
+#View(MPA_table)
 
 ```
 
@@ -317,18 +272,61 @@ MPAqq
 
 ```
 
+## Part 3 question of interest: 
+## Is there a significant difference between lobster size at each of the sites in 2012 and 2017? 
 
-## Is there a significant difference between lobster size at MPA sites in 2012 and 2017? 
-
-## Is there a significant difference between lobster size at non-MPA sites in 2012 and 2017? 
-
-## Is there a significant difference between lobster size at MPA vs. Non-MPA sites in 2017? 
-
-
-###PART 4 Proportion Table and Chi-Test
 
 ```{r}
 
+#create data frames to perform statistical tests to answer the question above 
+
+#AQUE dataframe
+AQUEdf <- MPAdf %>%
+  filter(SITE == "AQUE")
+#View(AQUEdf)
+
+#CARP datafram
+CARPdf <- MPAdf %>%
+  filter(SITE == "CARP")
+#View(CARPdf)
+
+#MOHK dataframe
+MOHKdf <- MPAdf %>%
+  filter(SITE == "MOHK")
+#View(MOHKdf)
+
+#IVEE dataframe
+IVEEdf <- MPAdf %>%
+  filter(SITE == "IVEE")
+#View(IVEEdf)
+
+#NAPL dataframe 
+NAPLdf <- MPAdf %>%
+  filter(SITE == "NAPL")
+#View(NAPLdf)
+
+########################
+
+mpa_sites <- MPAdf %>%
+  filter(MPA_STATUS == "MPA")
+
+#View(mpa_sites)
+
+nonmpa_sites <- MPAdf %>%
+  filter(MPA_STATUS == "NON-MPA")
+
+#View(nonmpa_sites)
+
+post_sites <- MPAdf %>%
+  filter(YEAR == "2017")
+
+#View(post_sites)
+
+```
+
+```{r}
+
+<<<<<<< HEAD
 
 legal_lobster<-ls_comp %>% 
   filter(YEAR=="2017",SIZE !="NA") %>% 
@@ -346,9 +344,227 @@ prop_lobster
 
 chi_lobster<- chisq.test(legal_lobster)
 chi_lobster
+=======
+#AQUE site (comparing 2012 and 2017 sizes)
+
+#F-Test for equal variances 
+#AQUE_ftest <- AQUEdf %>%
+  #var.test(SIZE ~ YEAR, data = .)
+
+#AQUE_ftest 
+#RESULT: Variances are NOT equal 
+
+#T-test 
+AQUE_ttest <- AQUEdf %>%
+  t.test(SIZE ~ YEAR, data =.)
+
+#AQUE_ttest
+
+#NOT significantly different (p-value = 0.1907)
+
+```
+
+```{r}
+
+#CARP site (comparing 2012 and 2017 sizes)
+
+#F-Test for equal variances 
+#CARP_ftest <- CARPdf %>%
+  #var.test(SIZE ~ YEAR, data = .)
+
+#CARP_ftest 
+#RESULT: Variances are NOT equal  
+
+#T-test 
+CARP_ttest <- CARPdf %>%
+  t.test(SIZE ~ YEAR, data =.)
+
+#CARP_ttest
+
+#NOT significantly different (p-value = 0.2211)
+
+```
+
+```{r}
+
+#MOHK site (comparing 2012 and 2017 sizes)
+
+#F-Test for equal variances 
+#MOHK_ftest <- MOHKdf %>%
+  #var.test(SIZE ~ YEAR, data = .)
+
+#MOHK_ftest 
+#RESULT: Variances are NOT equal  
+
+#T-test 
+MOHK_ttest <- MOHKdf %>%
+  t.test(SIZE ~ YEAR, data =.)
+
+#MOHK_ttest
+
+#SIGNIFICANTLY DIFFERENT (p-value = 0.0001599)
+
+```
+
+```{r}
+#IVEE site (comparing 2012 and 2017 sizes)
+
+#F-Test for equal variances 
+#IVEE_ftest <- IVEEdf %>%
+  #var.test(SIZE ~ YEAR, data = .)
+
+#IVEE_ftest 
+#RESULT: Variances are NOT equal  
+
+#T-test 
+IVEE_ttest <- IVEEdf %>%
+  t.test(SIZE ~ YEAR, data =.)
+
+#IVEE_ttest
+
+#SIGNIFICANTLY DIFFERENT (p-value = 0.0361)
 
 
 
 ```
 
+```{r}
+
+#NAPL site (comparing 2012 and 2017 sizes)
+
+#F-Test for equal variances 
+#NAPL_ftest <- NAPLdf %>%
+  #var.test(SIZE ~ YEAR, data = .)
+
+#NAPL_ftest 
+#RESULT: Variances are NOT equal  
+
+#T-test 
+NAPL_ttest <- NAPLdf %>%
+  t.test(SIZE ~ YEAR, data =.)
+
+#NAPL_ttest
+
+#NOT significantly different (p-value = 0.5373)
+
+
+```
+
+```{r}
+
+#Cohen's D
+
+IVEE_effect <- cohen.d(SIZE ~ YEAR, IVEEdf)
+IVEE_effect
+
+## Result: -0.3775177 (small)
+
+MOHK_effect <- cohen.d(SIZE ~ YEAR, MOHKdf)
+MOHK_effect
+
+## Result: 0.5408116 (medium)
+
+```
+
+
+```{r}
+####
+#Comparing lobster size at ALL MPA sites (IVEE and NAPL) in 2012 and 2017
+####
+
+#F Test for equal variance 
+#H0: Ratio of variances is = 1 
+#HA: Ratio of variances is NOT = 1
+
+mpa_ftest <- mpa_sites %>%
+  var.test(SIZE ~ YEAR, data = .)
+
+mpa_ftest
+# Test determined variances are NOT equal 
+
+#Two sample two sided T-Test
+#H0: The difference between the means = 0
+#HA: The difference between the means is NOT = 0
+
+mpa_ttest <- mpa_sites %>%
+  t.test(SIZE ~ YEAR, data =., var.equal = TRUE)
+
+mpa_ttest
+
+#NOT SIGNIFICANTLY DIFFERENT (p-value = 0.05576)
+
+```
+
+```{r}
+###
+#Comparing lobster size at ALL non-MPA sites (CARP, MOHK, and AQUE) in 2012 and 2017
+###
+
+#F Test for equal variance 
+#H0: Ratio of variances is = 1 
+#HA: Ratio of variances is NOT = 1
+
+nonmpa_ftest <- nonmpa_sites %>%
+  var.test(SIZE ~ YEAR, data = .)
+
+nonmpa_ftest
+# Test determined variances are NOT equal 
+
+#Two sample two sided T-Test
+#H0: The difference between the means = 0
+#HA: The difference between the means is NOT = 0
+
+nonmpa_ttest <- nonmpa_sites %>%
+  t.test(SIZE ~ YEAR, data =., var.equal = TRUE)
+
+nonmpa_ttest
+
+#SIGNIFICANTLY DIFFERENT (p-value = 0.007093)
+
+```
+
+```{r}
+###
+#Comparing lobster size at MPA vs. Non-MPA sites in 2017
+###
+
+
+```
+
+```{r}
+
+#Create finalized data table 
+
+sum_df <- MPAdf %>%
+  mutate(
+    SITE_FULL = case_when( 
+      SITE == "IVEE" ~ "Isla Vista (IVEE)",
+      SITE == "NAPL" ~ "Naples Reef (NAPL)",
+      SITE == "AQUE" ~ "Arroyo Quemado (AQUE)",
+      SITE == "CARP" ~ "Carpinteria (CARP)",
+      SITE == "MOHK" ~ "Mohawk Reef (MOHK)"))
+
+sizesum <- sum_df %>%
+  group_by(MPA_STATUS, SITE_FULL, YEAR) %>%
+  summarize(
+    mean = round(mean(SIZE), 1),
+    stdev = round(sd(SIZE), 1),
+    length(SIZE))
+  
+sizesum
+>>>>>>> 03bcfded3e96b85c74eb390e1ff33daa0c9b9341
+
+
+
+```
+
+```{r}
+
+kable(sizesum, col.names = c("MPA Status", "Site", "Year", "Mean (mm)", "SD (mm)", "sample size"), caption = "**Table 1**. California spiny lobster (*Panulirus interruptus*) carapace length (mm) at five Santa Barbara Channel reefs in 2012 and 2017. Source: Santa Barbara Coastal Long Term Ecological Research") %>%
+  kable_styling(bootstrap_options = c("striped"), full_width = F) %>%
+  collapse_rows()
+
+
+
+```
 
