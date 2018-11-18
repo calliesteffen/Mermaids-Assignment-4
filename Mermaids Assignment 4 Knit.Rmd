@@ -431,6 +431,23 @@ NAPL_ttest <- NAPLdf %>%
 ```
 
 ```{r}
+
+#Cohen's D
+
+IVEE_effect <- cohen.d(SIZE ~ YEAR, IVEEdf)
+IVEE_effect
+
+## Result: -0.3775177 (small)
+
+MOHK_effect <- cohen.d(SIZE ~ YEAR, MOHKdf)
+MOHK_effect
+
+## Result: 0.5408116 (medium)
+
+```
+
+
+```{r}
 ####
 #Comparing lobster size at ALL MPA sites (IVEE and NAPL) in 2012 and 2017
 ####
@@ -508,10 +525,10 @@ sum_df <- MPAdf %>%
       SITE == "MOHK" ~ "Mohawk Reef (MOHK)"))
 
 sizesum <- sum_df %>%
-  group_by(SITE_FULL, YEAR) %>%
+  group_by(MPA_STATUS, SITE_FULL, YEAR) %>%
   summarize(
     mean = round(mean(SIZE), 1),
-    stdev = round(mean(SIZE), 1),
+    stdev = round(sd(SIZE), 1),
     length(SIZE))
   
 sizesum
@@ -522,9 +539,10 @@ sizesum
 
 ```{r}
 
-kable(sizesum, col.names = c("Site", "Year", "Mean (mm)", "SD (mm)", "sample size"), caption = "**Table 1**. California spiny lobster (*Panulirus interruptus*) carapace length (mm) at five Santa Barbara Channel reefs in 2012 and 2017. Source: Santa Barbara Coastal Long Term Ecological Research") %>%
+kable(sizesum, col.names = c("MPA Status", "Site", "Year", "Mean (mm)", "SD (mm)", "sample size"), caption = "**Table 1**. California spiny lobster (*Panulirus interruptus*) carapace length (mm) at five Santa Barbara Channel reefs in 2012 and 2017. Source: Santa Barbara Coastal Long Term Ecological Research") %>%
   kable_styling(bootstrap_options = c("striped"), full_width = F) %>%
-  collapse_rows(columns = 1)
+  collapse_rows()
+
 
 
 ```
