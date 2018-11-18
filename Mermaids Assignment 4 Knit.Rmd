@@ -329,11 +329,23 @@ MPAqq
 
 ```{r}
 
-chi_prop<-ls_comp %>% 
 
-  
-  
-prop and chi test
+legal_lobster<-ls_comp %>% 
+  filter(YEAR=="2017",SIZE !="NA") %>% 
+  mutate(legality= ifelse(SIZE < 82.6, "ILLEGAL", "LEGAL")) %>% 
+  select(SITE,legality) %>% 
+  count(SITE,legality) %>% 
+  spread(legality,n) %>% 
+  select(-SITE)
+
+rownames(legal_lobster)<- c("AQUE", "CARP", "IVEE","MOHK","NAPL")
+
+prop_lobster<-prop.table(as.matrix(legal_lobster),1)
+
+prop_lobster
+
+chi_lobster<- chisq.test(legal_lobster)
+chi_lobster
 
 
 
